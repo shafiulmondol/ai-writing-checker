@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Writing Checker</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#172033}
+.container{max-width:1100px;margin:auto;padding:28px 18px}
+header{text-align:center;margin-bottom:24px}
+h1{margin:0 0 8px;font-size:34px}
+.subtitle{color:#667085}
+.card{background:white;border:1px solid #e4e7ec;border-radius:18px;padding:22px;box-shadow:0 6px 24px rgba(16,24,40,.06);margin-bottom:18px}
+textarea{width:100%;min-height:330px;border:1px solid #d0d5dd;border-radius:12px;padding:16px;font-size:16px;line-height:1.7;resize:vertical;outline:none}
+textarea:focus{border-color:#667085}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+button,.file-label{border:0;border-radius:10px;padding:12px 18px;font-weight:700;cursor:pointer;font-size:15px}
+.check{background:#111827;color:white}
+.upload{background:#eef2ff;color:#3730a3}
+.clear{background:#f2f4f7;color:#344054}
+input[type=file]{display:none}
+.results{display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{border:1px solid #eaecf0;border-radius:14px;padding:18px;text-align:center}
+.stat .num{font-size:30px;font-weight:800;margin:5px 0}
+.stat small{color:#667085}
+.ai .num{color:#d92d20}.human .num{color:#039855}.total .num{color:#344054}
+.legend{margin:18px 0 10px;color:#475467}
+.output{border:1px solid #eaecf0;border-radius:12px;padding:18px;line-height:1.9;font-size:16px;background:#fcfcfd}
+.ai-sentence{background:#ffe4e6;text-decoration:underline;text-decoration-color:#dc2626;text-decoration-thickness:2px;text-decoration-skip-ink:none;border-radius:3px;padding:1px 2px}
+.notice{font-size:13px;color:#667085;line-height:1.6;margin-top:12px}
+.progress{height:8px;background:#eaecf0;border-radius:20px;overflow:hidden;margin:10px 0 18px}
+.bar{height:100%;width:0;background:#111827;transition:width .5s}
+@media(max-width:700px){.stats{grid-template-columns:1fr}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>AI Writing Checker</h1>
+<div class="subtitle">Paste your assignment or upload a text, PDF, or Word file — no artificial character limit.</div>
+</header>
+
+<div class="card">
+<textarea id="text" placeholder="Paste your assignment here..."></textarea>
+<div class="row">
+<label class="file-label upload" for="file">📄 Upload File</label>
+<input id="file" type="file" accept=".txt,.pdf,.docx">
+<button class="check" id="check">🔍 Check Writing</button>
+<button class="clear" id="clear">Clear</button>
+</div>
+<div id="fileName" class="notice"></div>
+</div>
+
+<div class="card results" id="results">
+<h2>Result</h2>
+<div class="stats">
+<div class="stat ai"><small>AI-like</small><div class="num" id="aiPct">0%</div></div>
+<div class="stat human"><small>Human-like</small><div class="num" id="humanPct">0%</div></div>
+<div class="stat total"><small>Sentences checked</small><div class="num" id="sentenceCount">0</div></div>
+</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="legend">🔴 <b>Red underline</b> = sentence contains stronger AI-style signals according to this heuristic.</div>
+<div class="output" id="output"></div>
+<div class="notice">
+Important: AI-writing detection is probabilistic, not proof of authorship. This tool uses linguistic heuristics in your browser and can produce false positives/negatives. It should not be treated as an official academic misconduct detector.
+</div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script>
+const textBox=document.getElementById('text');
+const fileInput=document.getElementById('file');
+const fileName=document.getElementById('fileName');
+const results=document.getElementById('results');
+const output=document.getElementById('output');
+
+let pdfjsLib=null;
+import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs').then(m=>{
+  pdfjsLib=m;
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+}).catch(()=>{});
+
+fileInput.addEventListener('change', async e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  fileName.textContent='Selected: '+file.name;
+  try{
+    const ext=file.name.toLowerCase().split('.').pop();
+    if(ext==='txt'){
+      textBox.value=await file.text();
+    }else if(ext==='docx'){
+      if(!window.mammoth) throw new Error('Word reader is still loading. Try again.');
+      const buf=await file.arrayBuffer();
+      const result=await mammoth.extractRawText({arrayBuffer:buf});
+      textBox.value=result.value;
+    }else if(ext==='pdf'){
+      if(!pdfjsLib) throw new Error('PDF reader is still loading. Try again in a moment.');
+      const buf=await file.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      let pages=[];
+      for(let p=1;p<=pdf.numPages;p++){
+        const page=await pdf.getPage(p);
+        const content=await page.getTextContent();
+        pages.push(content.items.map(x=>x.str).join(' '));
+      }
+      textBox.value=pages.join('\\n\\n');
+    }
+  }catch(err){
+    alert('Could not read this file: '+err.message);
+  }
+});
+
+document.getElementById('clear').onclick=()=>{
+  textBox.value='';fileInput.value='';fileName.textContent='';
+  results.style.display='none';output.innerHTML='';
+};
+
+function splitSentences(t){
+  return t.replace(/\\s+/g,' ').match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[];
+}
+
+function scoreSentence(s){
+  const x=s.trim();
+  if(x.length<20)return 0;
+  let score=0;
+  const lower=x.toLowerCase();
+
+  // Signals are intentionally transparent and heuristic.
+  const phrases=[
+    'in conclusion','in summary','it is important to note','it is worth noting',
+    'furthermore','moreover','additionally','consequently','overall',
+    'plays a crucial role','plays an important role','a significant role',
+    'multifaceted','comprehensive','delve into','underscores the importance',
+    'this highlights','it can be argued','in today’s world','in the modern world',
+    'not only','but also','therefore','thus'
+  ];
+  phrases.forEach(p=>{if(lower.includes(p))score+=1.2});
+
+  const commas=(x.match(/,/g)||[]).length;
+  if(commas>=3)score+=0.6;
+  if(x.length>220)score+=1.0;
+  if(x.length>300)score+=0.7;
+
+  const words=x.split(/\\s+/).filter(Boolean);
+  if(words.length>=28){
+    const unique=new Set(words.map(w=>w.toLowerCase().replace(/[^a-z0-9']/g,''))).size;
+    const ratio=unique/words.length;
+    if(ratio<0.55)score+=0.7;
+  }
+
+  if(/\\b(however|although|while|which|whereas|because|therefore|thus|hence)\\b/i.test(x))score+=0.35;
+  if(/\\b(is|are|was|were)\\s+\\w+ed\\b/i.test(x))score+=0.25;
+  if(/\\b(firstly|secondly|thirdly|finally)\\b/i.test(x))score+=0.7;
+
+  // Repetition of polished generic sentence structure
+  if(/\\b(this|these|such|it)\\s+(approach|method|system|study|result|finding|technology)\\b/i.test(x))score+=0.35;
+
+  return Math.min(5,score);
+}
+
+document.getElementById('check').onclick=()=>{
+  const text=textBox.value.trim();
+  if(!text){alert('Please paste text or upload a file first.');return;}
+
+  const sentences=splitSentences(text);
+  if(!sentences.length){alert('No readable sentences were found.');return;}
+
+  const scored=sentences.map(s=>({s,score:scoreSentence(s)}));
+  const flagged=scored.filter(o=>o.score>=2.0).length;
+  const weighted=scored.reduce((a,o)=>a+Math.min(o.score/5,1),0);
+  const ai=Math.round(Math.min(99,Math.max(1,(weighted/scored.length)*100)));
+  const human=100-ai;
+
+  document.getElementById('aiPct').textContent=ai+'%';
+  document.getElementById('humanPct').textContent=human+'%';
+  document.getElementById('sentenceCount').textContent=sentences.length;
+  document.getElementById('bar').style.width=ai+'%';
+
+  output.innerHTML=scored.map(o=>{
+    const safe=o.s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return o.score>=2.0 ? '<span class="ai-sentence">'+safe+'</span>' : safe;
+  }).join(' ');
+
+  results.style.display='block';
+  results.scrollIntoView({behavior:'smooth',block:'start'});
+};
+</script>
+</body>
+</html>
