@@ -1,266 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Writing Analyzer</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Writing Analyzer</title>
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#e4e7ec;--dark:#111827;--red:#dc2626;--redbg:#fff1f2;--green:#039855;--blue:#4f46e5}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-.wrap{max-width:1180px;margin:auto;padding:30px 18px 50px}
-.hero{text-align:center;margin:12px 0 28px}
-.hero h1{font-size:36px;margin:0 0 8px;letter-spacing:-.7px}
-.hero p{margin:0;color:var(--muted);font-size:15px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:0 8px 30px rgba(16,24,40,.06);margin-bottom:18px}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
-.toolbar h2{font-size:18px;margin:0}
-.counter{color:var(--muted);font-size:13px}
-textarea{width:100%;min-height:360px;border:1px solid #cfd4dc;border-radius:14px;padding:17px;font:15px/1.75 inherit;resize:vertical;outline:none;background:#fff}
-textarea:focus{border-color:#667085;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-button,.filebtn{border:0;border-radius:11px;padding:12px 18px;font-weight:750;font-size:14px;cursor:pointer;transition:.15s}
-button:hover,.filebtn:hover{transform:translateY(-1px)}
-.primary{background:var(--dark);color:white}.secondary{background:#eef2ff;color:#3730a3}.ghost{background:#f2f4f7;color:#344054}
-input[type=file]{display:none}
-.status{margin-top:10px;min-height:20px;color:var(--muted);font-size:13px}
-.results{display:none}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.metric{border:1px solid var(--border);border-radius:15px;padding:17px;text-align:center}
-.metric .label{color:var(--muted);font-size:13px}.metric .value{font-size:29px;font-weight:850;margin-top:5px}
-.ai .value{color:var(--red)}.human .value{color:var(--green)}
-.barwrap{height:10px;background:#eaecf0;border-radius:99px;overflow:hidden;margin:17px 0 20px}.bar{height:100%;width:0;background:var(--red);transition:width .45s}
-.legend{font-size:13px;color:#475467;margin-bottom:12px}
-.report{border:1px solid var(--border);border-radius:15px;padding:18px;background:#fcfcfd;line-height:1.9;font-size:15px;white-space:normal;overflow-wrap:anywhere}
-.sus{background:var(--redbg);text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;text-decoration-skip-ink:none;border-radius:3px;padding:1px 2px}
-.low{background:#fff7ed}
-.sentence-row{border-top:1px solid var(--border);padding:12px 0}
-.sentence-row:first-child{border-top:0}.tag{font-size:11px;font-weight:800;padding:3px 7px;border-radius:99px;background:#f2f4f7;color:#475467;margin-right:7px}.tag.red{background:#fee4e2;color:#b42318}
-.details{margin-top:16px}
-details{border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-top:9px;background:#fff}
-summary{cursor:pointer;font-weight:700}
-.small{font-size:12px;color:var(--muted);line-height:1.6;margin-top:12px}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:29px}}
-@media(max-width:500px){.grid{grid-template-columns:1fr}.wrap{padding:20px 12px}.card{padding:16px}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="hero">
-    <h1>AI Writing Analyzer</h1>
-    <p>Analyze long assignments and papers with sentence-level AI-style signals.</p>
-  </div>
-
-  <section class="card">
-    <div class="toolbar">
-      <h2>📝 Your paper</h2>
-      <div class="counter" id="counter">0 characters · 0 words</div>
-    </div>
-    <textarea id="text" placeholder="Paste your assignment, thesis, report, or paper here..."></textarea>
-    <div class="actions">
-      <label class="filebtn secondary" for="file">📄 Upload PDF / DOCX / TXT</label>
-      <input id="file" type="file" accept=".pdf,.docx,.txt">
-      <button class="primary" id="check">🔍 Analyze Writing</button>
-      <button class="ghost" id="clear">Clear</button>
-    </div>
-    <div class="status" id="status"></div>
-  </section>
-
-  <section class="card results" id="results">
-    <h2 style="margin-top:0">Analysis result</h2>
-    <div class="grid">
-      <div class="metric ai"><div class="label">AI-style likelihood</div><div class="value" id="ai">0%</div></div>
-      <div class="metric human"><div class="label">Human-style likelihood</div><div class="value" id="human">0%</div></div>
-      <div class="metric"><div class="label">Words</div><div class="value" id="words">0</div></div>
-      <div class="metric"><div class="label">Sentences</div><div class="value" id="sentences">0</div></div>
-    </div>
-    <div class="barwrap"><div class="bar" id="bar"></div></div>
-    <div class="legend">🔴 Red underline = stronger AI-style linguistic signals. This is a probability-style analysis, not proof of AI authorship.</div>
-    <div class="report" id="report"></div>
-    <div class="details">
-      <details>
-        <summary>What signals were checked?</summary>
-        <div class="small">
-          Sentence length and uniformity, transition-word density, generic academic phrasing,
-          repeated structural patterns, excessive qualification, passive constructions,
-          punctuation patterns, lexical diversity, and other style signals.
-        </div>
-      </details>
-      <details>
-        <summary>Important limitation</summary>
-        <div class="small">
-          No detector can reliably prove that text was written by AI from style alone.
-          Human academic writing can look AI-like, and AI text can look human-like.
-          The percentages shown here are an analytical estimate from linguistic heuristics,
-          not an official plagiarism or academic-misconduct verdict.
-        </div>
-      </details>
-    </div>
-  </section>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
-<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
-<script>
-let pdfjsLib=null;
-import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs").then(m=>{
-  pdfjsLib=m;
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
-}).catch(()=>{});
-
-const $=id=>document.getElementById(id);
-const box=$("text");
-const file=$("file");
-
-function updateCounter(){
-  const t=box.value;
-  const w=t.trim()?t.trim().split(/\s+/).length:0;
-  $("counter").textContent=`${t.length.toLocaleString()} characters · ${w.toLocaleString()} words`;
-}
-box.addEventListener("input",updateCounter);
-
-file.addEventListener("change",async()=>{
-  const f=file.files[0]; if(!f)return;
-  $("status").textContent="Reading "+f.name+" …";
-  try{
-    const ext=f.name.toLowerCase().split(".").pop();
-    if(ext==="txt") box.value=await f.text();
-    else if(ext==="docx"){
-      if(!window.mammoth) throw new Error("DOCX reader is loading. Try again.");
-      const r=await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});
-      box.value=r.value;
-    }else if(ext==="pdf"){
-      if(!pdfjsLib) throw new Error("PDF reader is loading. Wait a moment and try again.");
-      const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-      const pages=[];
-      for(let p=1;p<=pdf.numPages;p++){
-        const pg=await pdf.getPage(p);
-        const c=await pg.getTextContent();
-        pages.push(c.items.map(i=>i.str).join(" "));
-      }
-      box.value=pages.join("\n\n");
-    }
-    updateCounter();
-    $("status").textContent="File loaded successfully.";
-  }catch(e){$("status").textContent="Could not read file: "+e.message}
-});
-
-$("clear").onclick=()=>{
-  box.value="";file.value="";$("status").textContent="";
-  $("results").style.display="none";updateCounter();
-};
-
-function sentences(t){
-  return (t.replace(/\s+/g," ").match(/[^.!?]+(?:[.!?]+|$)/g)||[])
-    .map(s=>s.trim()).filter(Boolean);
-}
-
-const transitions=[
-"however","therefore","furthermore","moreover","additionally","consequently",
-"overall","thus","hence","in conclusion","in summary","nevertheless",
-"on the other hand","for instance","for example","in addition"
-];
-const generic=[
-"it is important to note","it is worth noting","plays a crucial role",
-"plays an important role","a significant role","has become increasingly",
-"in today's world","in the modern world","can be considered",
-"it can be argued","this highlights","this demonstrates",
-"underscores the importance","provides valuable insights",
-"multifaceted","comprehensive","delve into","not only","but also"
-];
-
-function countPhrase(s,arr){
-  const l=s.toLowerCase(); return arr.reduce((n,p)=>n+(l.includes(p)?1:0),0);
-}
-
-function sentenceScore(s,all){
-  const words=s.split(/\s+/).filter(Boolean);
-  if(words.length<8)return 0;
-  const l=s.toLowerCase();
-  let raw=0;
-
-  // 1. Highly polished/generic academic markers
-  raw+=Math.min(2.0,countPhrase(s,generic)*0.55);
-  raw+=Math.min(1.2,countPhrase(s,transitions)*0.35);
-
-  // 2. Length and syntactic density
-  if(words.length>35)raw+=0.7;
-  if(words.length>50)raw+=0.55;
-  if(words.length>70)raw+=0.45;
-  const commas=(s.match(/,/g)||[]).length;
-  if(commas>=3)raw+=0.35;
-  if(commas>=5)raw+=0.35;
-
-  // 3. Repeated formal scaffolding
-  if(/\b(this|these|such|it|they)\s+(approach|method|system|study|result|finding|technology|framework|process)\b/i.test(s))raw+=0.4;
-  if(/\b(is|are|was|were|has been|have been)\s+\w+(ed|en)\b/i.test(s))raw+=0.3;
-  if(/\b(firstly|secondly|thirdly|finally)\b/i.test(s))raw+=0.55;
-
-  // 4. Excessive abstraction / nominalization
-  const nominal=(l.match(/\b\w+(tion|sion|ment|ness|ity|ance|ence)\b/g)||[]).length;
-  if(words.length>=20 && nominal/words.length>.20)raw+=0.45;
-
-  // 5. Sentence shape similarity with neighboring sentences
-  const idx=all.indexOf(s);
-  if(idx>0){
-    const prev=all[idx-1];
-    const a=prev.split(/\s+/).slice(0,3).join(" ").toLowerCase();
-    const b=s.split(/\s+/).slice(0,3).join(" ").toLowerCase();
-    if(a===b)raw+=0.65;
-  }
-
-  // 6. Repeated generic openings across the document
-  const opening=s.split(/\s+/).slice(0,2).join(" ").toLowerCase();
-  const openingCount=all.filter(x=>x.split(/\s+/).slice(0,2).join(" ").toLowerCase()===opening).length;
-  if(openingCount>=3)raw+=0.45;
-
-  // 7. Extremely regular sentence length gets a small penalty/boost.
-  return Math.max(0,Math.min(10,raw));
-}
-
-function escapeHTML(s){
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-
-$("check").onclick=()=>{
-  const text=box.value.trim();
-  if(!text){alert("Please paste text or upload a file first.");return;}
-  const ss=sentences(text);
-  if(!ss.length){alert("No readable sentences found.");return;}
-
-  $("status").textContent="Analyzing "+ss.length.toLocaleString()+" sentences …";
-  const scores=ss.map(s=>sentenceScore(s,ss));
-
-  // Normalize only after evaluating every sentence, so document length does not
-  // create a fake score merely because the paper is long.
-  const weighted=scores.reduce((a,v)=>a+Math.min(v/6,1),0)/scores.length;
-  const flagged=scores.filter(v=>v>=2.0).length/scores.length;
-
-  // Conservative blend: avoid extreme numbers from a heuristic-only detector.
-  let ai=Math.round(100*(weighted*.72+flagged*.28));
-  ai=Math.max(1,Math.min(99,ai));
-  const human=100-ai;
-
-  $("ai").textContent=ai+"%";
-  $("human").textContent=human+"%";
-  $("words").textContent=(text.match(/\S+/g)||[]).length.toLocaleString();
-  $("sentences").textContent=ss.length.toLocaleString();
-  $("bar").style.width=ai+"%";
-
-  $("report").innerHTML=ss.map((s,i)=>{
-    const sc=scores[i];
-    const strong=sc>=2.0;
-    const html=escapeHTML(s);
-    return strong
-      ? `<span class="sus" title="AI-style signal score: ${sc.toFixed(1)}/10">${html}</span> `
-      : `${html} `;
-  }).join("");
-
-  $("results").style.display="block";
-  $("status").textContent="Analysis complete.";
-  $("results").scrollIntoView({behavior:"smooth",block:"start"});
-};
-updateCounter();
-</script>
-</body>
-</html>
+body{margin:0;background:#f5f7fb;color:#172033;font-family:Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:28px 16px}.hero{text-align:center}.hero h1{font-size:34px}.card{background:white;border:1px solid #e4e7ec;border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 6px 25px #1018280d}textarea{width:100%;min-height:350px;box-sizing:border-box;padding:16px;border:1px solid #cfd4dc;border-radius:12px;font:15px/1.7 Arial;resize:vertical}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}button,.filebtn{border:0;border-radius:10px;padding:12px 17px;font-weight:bold;cursor:pointer}.primary{background:#111827;color:white}.secondary{background:#eef2ff;color:#3730a3}.ghost{background:#f2f4f7;color:#344054}input{display:none}.status{font-size:13px;color:#667085;margin-top:10px;min-height:20px}.results{display:none}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{text-align:center;border:1px solid #eaecf0;border-radius:13px;padding:16px}.label{font-size:12px;color:#667085}.value{font-size:28px;font-weight:900;margin-top:5px}.ai .value{color:#d92d20}.human .value{color:#039855}.bar{height:9px;background:#eaecf0;border-radius:99px;margin:16px 0;overflow:hidden}.bar i{display:block;height:100%;background:#d92d20;width:0}.report{border:1px solid #eaecf0;border-radius:13px;padding:17px;line-height:1.9}.sus{background:#fff1f2;text-decoration:underline;text-decoration-color:#d92d20;text-decoration-thickness:2px;border-radius:3px}.note{font-size:13px;color:#667085;line-height:1.6}@media(max-width:750px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:450px){.grid{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+<div class="hero"><h1>AI Writing Analyzer</h1><p>Real ML model • long-paper chunking • sentence highlighting</p></div>
+<section class="card"><b>📝 Paper / Assignment</b><span id="counter" style="float:right;color:#667085;font-size:13px">0 characters · 0 words</span>
+<textarea id="text" placeholder="Paste your English assignment or paper here..."></textarea>
+<div class="actions"><label class="filebtn secondary" for="file">📄 Upload PDF / DOCX / TXT</label><input id="file" type="file" accept=".pdf,.docx,.txt"><button id="check" class="primary">🤖 Analyze with ML</button><button id="clear" class="ghost">Clear</button></div>
+<div id="status" class="status"></div></section>
+<section id="results" class="card"><h2>Analysis result</h2><div class="grid">
+<div class="metric ai"><div class="label">AI-style likelihood</div><div id="ai" class="value">—</div></div>
+<div class="metric human"><div class="label">Human-style likelihood</div><div id="human" class="value">—</div></div>
+<div class="metric"><div class="label">Words</div><div id="words" class="value">—</div></div>
+<div class="metric"><div class="label">Sentences</div><div id="sentences" class="value">—</div></div></div>
+<div class="bar"><i id="bar"></i></div><div style="font-size:13px;color:#475467;margin-bottom:10px">🔴 Red underline = sentence whose model-derived probability crosses the highlighting threshold.</div>
+<div id="report" class="report"></div>
+<details><summary>Model / method</summary><p class="note">Uses onnx-community/tmr-ai-text-detector-ONNX through Hugging Face Transformers.js. The TMR classifier labels 0=human and 1=ai. Long documents are divided into overlapping windows because the underlying RoBERTa model has a finite input length; sentence scores are averaged from windows containing each sentence.</p></details>
+<details><summary>Important limitation</summary><p class="note">AI detection is probabilistic, not proof of authorship. The model is primarily trained for English and can behave differently on out-of-domain writing. Do not use this result alone for an academic misconduct decision.</p></details></section></div>
+<script type="module">
+import{pipeline,env}from"https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+env.allowLocalModels=false;env.useBrowserCache=true;
+const MODEL="onnx-community/tmr-ai-text-detector-ONNX", $=id=>document.getElementById(id);
+let pipe=null,loading=null,runWindows=[],runSentences=[];
+$("text").oninput=()=>{let t=$("text").value,w=t.trim()?t.trim().split(/\s+/).length:0;$("counter").textContent=t.length.toLocaleString()+" characters · "+w.toLocaleString()+" words"};
+function split(t){return(t.replace(/\s+/g," ").match(/[^.!?]+(?:[.!?]+|$)/g)||[]).map(x=>x.trim()).filter(Boolean)}
+function windows(ss){let out=[],start=0;while(start<ss.length){let end=start,n=0;while(end<ss.length&&n<300){n+=ss[end].split(/\s+/).length;end++}let ids=[];for(let i=start;i<end;i++)ids.push(i);out.push({text:ids.map(i=>ss[i]).join(" "),ids});if(end>=ss.length)break;let back=end-1,bw=0;while(back>start&&bw<70){back--;bw+=ss[back].split(/\s+/).length}start=Math.max(start+1,back)}return out}
+async function getPipe(){if(pipe)return pipe;if(loading)return loading;loading=(async()=>{try{pipe=await pipeline("text-classification",MODEL,navigator.gpu?{device:"webgpu",dtype:"q8"}:{dtype:"q8"})}catch(e){pipe=await pipeline("text-classification",MODEL,{dtype:"q8"})}return pipe})();return loading}
+function progress(msg){$("status").textContent=msg}
+$("check").onclick=async()=>{let t=$("text").value.trim();if(!t)return alert("Paste text or upload a file first.");runSentences=split(t);if(!runSentences.length)return alert("No readable sentences found.");runWindows=windows(runSentences);progress("Loading ML model (first run may take a while)…");try{let p=await getPipe(),scores=runSentences.map(()=>({s:0,n:0}));for(let j=0;j<runWindows.length;j++){progress("Analyzing window "+(j+1)+" of "+runWindows.length+"…");let r=await p(runWindows[j].text,{top_k:null}),a=(Array.isArray(r[0])?r[0]:r),ai=a.find(x=>String(x.label).toLowerCase()=="ai");let q=ai?ai.score:0;runWindows[j].ids.forEach(i=>{scores[i].s+=q;scores[i].n++})}
+let vals=scores.map(x=>x.n?x.s/x.n:0),avg=vals.reduce((a,b)=>a+b,0)/vals.length,strong=vals.filter(x=>x>=.5).length/vals.length,aiPct=Math.max(1,Math.min(99,Math.round((avg*.82+strong*.18)*100)));$("ai").textContent=aiPct+"%";$("human").textContent=100-aiPct+"%";$("words").textContent=(t.match(/\S+/g)||[]).length.toLocaleString();$("sentences").textContent=runSentences.length.toLocaleString();$("bar").style.width=aiPct+"%";$("report").innerHTML=runSentences.map((s,i)=>{let safe=s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");return vals[i]>=.5?'<span class="sus" title="Model AI probability: '+Math.round(vals[i]*100)+'%">'+safe+"</span> ":safe+" "}).join("");$("results").style.display="block";progress("Analysis complete.");$("results").scrollIntoView({behavior:"smooth"})}catch(e){progress("Model error: "+e.message);alert("The ML model could not run: "+e.message)}};
+$("clear").onclick=()=>{$("text").value="";$("file").value="";$("results").style.display="none";progress("");$("counter").textContent="0 characters · 0 words"};
+$("file").onchange=async()=>{let f=$("file").files[0];if(!f)return;progress("Reading "+f.name+"…");try{let ext=f.name.toLowerCase().split(".").pop();if(ext=="txt")$("text").value=await f.text();else if(ext=="docx"){let m=await import("https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js");$("text").value=(await m.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}else if(ext=="pdf"){let p=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs");p.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";let pdf=await p.getDocument({data:await f.arrayBuffer()}).promise,a=[];for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),c=await pg.getTextContent();a.push(c.items.map(x=>x.str).join(" "))}$("text").value=a.join("\n\n")}$("text").oninput();progress("File loaded successfully.")}catch(e){progress("Could not read file: "+e.message)}};
+</script></body></html>
