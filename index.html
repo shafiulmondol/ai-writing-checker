@@ -3,73 +3,78 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Writing Analyzer — DACTYL ML</title>
+<title>AI Writing Analyzer — TMR Research Mode</title>
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#e4e7ec;--dark:#111827;--red:#d92d20;--green:#039855;--amber:#b54708;--blue:#4f46e5}
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--border:#e4e7ec;--dark:#101828;--red:#d92d20;--green:#039855;--orange:#f79009;--blue:#4f46e5}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-.wrap{max-width:1180px;margin:auto;padding:28px 16px 55px}.hero{text-align:center;margin:8px 0 25px}.hero h1{margin:0 0 7px;font-size:35px}.hero p{margin:0;color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:21px;margin-bottom:17px;box-shadow:0 7px 28px rgba(16,24,40,.055)}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h2{margin:0;font-size:18px}.counter{color:var(--muted);font-size:13px}
-textarea{width:100%;min-height:350px;margin-top:12px;padding:16px;border:1px solid #cfd4dc;border-radius:13px;resize:vertical;outline:0;font:15px/1.75 inherit}
-textarea:focus{border-color:#667085;box-shadow:0 0 0 3px #66708514}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:13px}button,.filebtn{border:0;border-radius:10px;padding:12px 17px;font-size:14px;font-weight:800;cursor:pointer}
-.primary{background:var(--dark);color:#fff}.secondary{background:#eef2ff;color:#3730a3}.ghost{background:#f2f4f7;color:#344054}
-input[type=file]{display:none}.status{font-size:13px;color:var(--muted);min-height:21px;margin-top:10px}
-.loader{display:none;margin-top:13px}.loaderbar{height:8px;background:#eaecf0;border-radius:99px;overflow:hidden}.loaderbar i{display:block;height:100%;width:0;background:var(--blue);transition:.2s}.loadtext{font-size:12px;color:var(--muted);margin-top:6px}
-.results{display:none}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}.label{font-size:12px;color:var(--muted)}.value{font-size:29px;font-weight:900;margin-top:5px}.ai .value{color:var(--red)}.human .value{color:var(--green)}
-.bar{height:10px;background:#eaecf0;border-radius:99px;overflow:hidden;margin:16px 0 19px}.bar i{display:block;height:100%;width:0;background:var(--red);transition:.4s}
-.report{border:1px solid var(--border);border-radius:14px;padding:17px;background:#fcfcfd;line-height:1.9;font-size:15px;overflow-wrap:anywhere}
-.sus{background:#fff1f2;text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;border-radius:3px;padding:1px 2px}
-.moderate{background:#fff7ed;text-decoration:underline;text-decoration-color:var(--amber);text-decoration-thickness:2px;border-radius:3px;padding:1px 2px}
-.legend,.note{font-size:13px;color:#475467;line-height:1.6}.legend{margin-bottom:11px}
-.warning{display:none;margin:12px 0;padding:13px 15px;border-radius:12px;background:#fff7ed;border:1px solid #fedf89;color:#7a2e0e;font-size:13px;line-height:1.55}
-details{margin-top:12px;border:1px solid var(--border);border-radius:11px;padding:10px 13px;background:#fff}summary{cursor:pointer;font-weight:750}
-.badge{display:inline-block;margin:0 0 12px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;background:#f2f4f7;color:#344054}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:29px}}@media(max-width:480px){.grid{grid-template-columns:1fr}.wrap{padding:18px 11px}.card{padding:15px}}
+.wrap{max-width:1180px;margin:auto;padding:28px 16px 60px}.hero{text-align:center;margin:7px 0 25px}.hero h1{font-size:34px;margin:0 0 7px}.hero p{margin:0;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:21px;margin-bottom:17px;box-shadow:0 7px 28px #1018280d}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.counter{font-size:13px;color:var(--muted)}
+textarea{width:100%;min-height:350px;margin-top:12px;padding:16px;border:1px solid #cfd4dc;border-radius:13px;outline:0;resize:vertical;font:15px/1.75 inherit}textarea:focus{border-color:#667085;box-shadow:0 0 0 3px #66708518}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}button,.file{border:0;border-radius:10px;padding:12px 17px;font-size:14px;font-weight:800;cursor:pointer}.primary{background:var(--dark);color:white}.secondary{background:#eef2ff;color:#3730a3}.ghost{background:#f2f4f7;color:#344054}input[type=file]{display:none}
+.status{min-height:22px;margin-top:10px;font-size:13px;color:var(--muted)}.loader{display:none;margin-top:12px}.track{height:8px;background:#eaecf0;border-radius:99px;overflow:hidden}.track i{display:block;width:0;height:100%;background:var(--blue);transition:.2s}.loadtext{font-size:12px;color:var(--muted);margin-top:6px}
+.results{display:none}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{border:1px solid var(--border);border-radius:14px;text-align:center;padding:16px}.label{font-size:12px;color:var(--muted)}.value{font-size:29px;font-weight:900;margin-top:5px}.ai .value{color:var(--red)}.human .value{color:var(--green)}
+.badge{display:inline-block;margin:0 0 13px;padding:7px 11px;border-radius:999px;background:#f2f4f7;font-size:12px;font-weight:850}.bar{height:10px;background:#eaecf0;border-radius:99px;overflow:hidden;margin:16px 0}.bar i{display:block;height:100%;width:0;background:var(--red);transition:.45s}
+.notice{display:none;padding:13px 15px;border:1px solid #fedf89;background:#fff7ed;color:#7a2e0e;border-radius:12px;font-size:13px;line-height:1.55;margin:13px 0}.legend{font-size:13px;color:#475467;margin:10px 0 12px}.report{border:1px solid var(--border);border-radius:14px;padding:17px;line-height:1.9;font-size:15px;background:#fcfcfd;overflow-wrap:anywhere}.sus{background:#fff1f2;text-decoration:underline;text-decoration-color:var(--red);text-decoration-thickness:2px;border-radius:3px;padding:1px 2px}.mod{background:#fff7ed;text-decoration:underline;text-decoration-color:var(--orange);text-decoration-thickness:2px;border-radius:3px;padding:1px 2px}
+details{margin-top:12px;border:1px solid var(--border);border-radius:11px;padding:10px 13px}summary{font-weight:800;cursor:pointer}.small{font-size:12px;color:var(--muted);line-height:1.6;margin-top:8px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.grid{grid-template-columns:1fr}.wrap{padding:18px 11px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="hero"><h1>AI Writing Analyzer</h1><p>DACTYL-based AI-text analysis for longer English writing</p></header>
+<header class="hero">
+<h1>AI Writing Analyzer</h1>
+<p>TMR + research-style segment aggregation for English academic writing</p>
+</header>
 
 <section class="card">
-<div class="top"><h2>📝 Paper / Assignment</h2><div id="counter" class="counter">0 characters · 0 words</div></div>
-<textarea id="text" placeholder="Paste your English assignment or paper here..."></textarea>
+<div class="row"><h2 style="margin:0;font-size:18px">📝 Paper / Assignment</h2><div id="counter" class="counter">0 characters · 0 words</div></div>
+<textarea id="text" placeholder="Paste your assignment, thesis section, paper, or report here..."></textarea>
 <div class="actions">
-<label class="filebtn secondary" for="file">📄 Upload PDF / DOCX / TXT</label>
+<label class="file secondary" for="file">📄 Upload PDF / DOCX / TXT</label>
 <input id="file" type="file" accept=".pdf,.docx,.txt">
 <button id="check" class="primary">🤖 Analyze with ML</button>
 <button id="clear" class="ghost">Clear</button>
 </div>
 <div id="status" class="status"></div>
-<div id="loader" class="loader"><div class="loaderbar"><i id="loaderbar"></i></div><div id="loadtext" class="loadtext"></div></div>
+<div id="loader" class="loader"><div class="track"><i id="prog"></i></div><div id="loadtext" class="loadtext"></div></div>
 </section>
 
 <section id="results" class="card">
-<h2 style="margin-top:0">Analysis result</h2>
-<div id="badge" class="badge">ML result</div>
+<h2 style="margin:0 0 13px">Analysis result</h2>
+<div id="badge" class="badge">—</div>
 <div class="grid">
-<div class="metric ai"><div class="label">AI-like score</div><div id="ai" class="value">—</div></div>
-<div class="metric human"><div class="label">Human-like score</div><div id="human" class="value">—</div></div>
+<div class="metric ai"><div class="label">AI-detected text</div><div id="ai" class="value">—</div></div>
+<div class="metric human"><div class="label">Human-like text</div><div id="human" class="value">—</div></div>
 <div class="metric"><div class="label">Words analyzed</div><div id="words" class="value">—</div></div>
-<div class="metric"><div class="label">Sentences checked</div><div id="sentences" class="value">—</div></div>
+<div class="metric"><div class="label">Segments</div><div id="segments" class="value">—</div></div>
 </div>
 <div class="bar"><i id="bar"></i></div>
-<div id="warning" class="warning"></div>
-<div class="legend">🔴 Strong AI-like signal &nbsp; 🟠 Moderate signal &nbsp; Normal text = no highlighted signal.</div>
+<div id="notice" class="notice"></div>
+<div class="legend">🔴 Strong signal &nbsp; 🟠 Moderate signal &nbsp; Normal text = below the highlight threshold.</div>
 <div id="report" class="report"></div>
-<details><summary>Model / method</summary><div class="note" style="margin-top:8px">This version uses the DACTYL DeBERTa-v3-large detector, an ONNX conversion of the original model. The detector is designed with low-false-positive detection in mind. The browser loads the model from Hugging Face through Transformers.js and runs inference locally in the browser when WebGPU is available.</div></details>
-<details><summary>Important limitation</summary><div class="note" style="margin-top:8px">AI detection is probabilistic and cannot prove authorship. The displayed percentage is the model's AI-like probability estimate, not a literal percentage of words written by AI. Very short text is rejected because short samples are unreliable. This version is intended for English writing.</div></details>
+
+<details><summary>Model / method</summary>
+<div class="small">
+<strong>Primary detector:</strong> TMR (Target Mining RoBERTa), an English AI-text detector trained on the RAID benchmark using Focal Loss and Self-Hard-Negative mining. The published model reports strong RAID benchmark results and is specifically designed to reduce false positives. This browser build uses its ONNX conversion.
+<br><br>
+<strong>Aggregation:</strong> The document is split into overlapping prose segments of a few hundred words. Each segment receives an AI probability from the detector; overlapping segment predictions are combined and mapped back to sentences. The document score is a word-weighted aggregate of the segment/sentence evidence. This follows the general research pattern of contextual segments + sentence-level evidence used by academic detectors, but it is <em>not</em> Turnitin's proprietary implementation.
+</div>
+</details>
+
+<details><summary>Important limitation</summary>
+<div class="small">
+AI detection is probabilistic and cannot prove authorship. A detector can misclassify human writing, especially short, edited, non-native, or out-of-domain English. Scores below 20% are shown as “low-confidence / not surfaced” rather than pretending that a tiny numerical difference is meaningful. For reliable evaluation, use at least 300 words of continuous prose.
+</div>
+</details>
 </section>
 </div>
 
 <script type="module">
 import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0";
-env.allowLocalModels=false;
-env.allowRemoteModels=true;
-env.useBrowserCache=true;
+env.allowLocalModels=false; env.allowRemoteModels=true; env.useBrowserCache=true;
 
-const MODEL="GabeuxDev/dactyl-ai-text-detector-onnx";
+const MODEL="onnx-community/tmr-ai-text-detector-ONNX";
 const $=id=>document.getElementById(id);
 let detector=null, loading=null;
 
@@ -80,172 +85,130 @@ function updateCounter(){
 }
 $("text").addEventListener("input",updateCounter);
 
-function setLoading(on,p=0,msg=""){
- $("loader").style.display=on?"block":"none";
- $("loaderbar").style.width=p+"%";
- $("loadtext").textContent=msg;
-}
-
-function splitSentences(t){
+function sentencesOf(t){
  return (t.replace(/\s+/g," ").match(/[^.!?]+(?:[.!?]+|$)/g)||[])
-   .map(x=>x.trim()).filter(x=>x.length>0);
+ .map(s=>s.trim()).filter(Boolean);
 }
-
-function makeWindows(sentences){
- const out=[];
+function wordCount(s){return (s.match(/\S+/g)||[]).length}
+function makeSegments(ss){
+ const segs=[];
  let start=0;
- while(start<sentences.length){
-   let end=start, words=0;
-   while(end<sentences.length && words<180){
-     words+=sentences[end].split(/\s+/).length;
-     end++;
-   }
-   const ids=[];
-   for(let i=start;i<end;i++)ids.push(i);
-   out.push({text:ids.map(i=>sentences[i]).join(" "),ids});
-   if(end>=sentences.length)break;
-   let back=end-1,bw=0;
-   while(back>start && bw<45){back--;bw+=sentences[back].split(/\s+/).length}
+ while(start<ss.length){
+   let end=start, n=0;
+   while(end<ss.length && n<230){n+=wordCount(ss[end]);end++}
+   const ids=[];for(let i=start;i<end;i++)ids.push(i);
+   segs.push({ids,text:ids.map(i=>ss[i]).join(" ")});
+   if(end>=ss.length)break;
+   let back=end-1,b=0;
+   while(back>start && b<65){back--;b+=wordCount(ss[back])}
    start=Math.max(start+1,back);
  }
- return out;
+ return segs;
 }
-
 async function getDetector(){
  if(detector)return detector;
  if(loading)return loading;
  loading=(async()=>{
-   const hasGPU=!!(navigator.gpu);
    try{
-     detector=await pipeline(
-       "text-classification",
-       MODEL,
-       hasGPU ? {device:"webgpu",dtype:"fp32"} : {device:"wasm",dtype:"fp32"}
-     );
+     detector=await pipeline("text-classification",MODEL,{device:navigator.gpu?"webgpu":"wasm",dtype:"q8"});
    }catch(e){
-     if(hasGPU){
-       detector=await pipeline("text-classification",MODEL,{device:"wasm",dtype:"fp32"});
-     }else throw e;
+     detector=await pipeline("text-classification",MODEL,{device:"wasm",dtype:"q8"});
    }
    return detector;
  })();
  return loading;
 }
-
-function escapeHTML(s){
- return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function aiProbability(result){
+ const a=Array.isArray(result[0])?result[0]:result;
+ // TMR model is documented as label 1 = AI. Handle common label names too.
+ const ai=a.find(x=>/ai|fake|generated|machine|1/i.test(String(x.label)));
+ if(ai)return Number(ai.score);
+ const real=a.find(x=>/real|human|0/i.test(String(x.label)));
+ if(real)return 1-Number(real.score);
+ return Number(a[0]?.score||0);
 }
-
-function showInsufficient(words,sentences){
- $("results").style.display="block";
- $("badge").textContent="⚠️ Insufficient text";
- $("ai").textContent="N/A"; $("human").textContent="N/A";
- $("words").textContent=words.toLocaleString();
- $("sentences").textContent=sentences.toLocaleString();
- $("bar").style.width="0";
- $("warning").style.display="block";
- $("warning").textContent="Add at least 120 words and 3 sentences. Short samples can produce unreliable AI-detection results.";
- $("report").innerHTML=splitSentences($("text").value).map(s=>escapeHTML(s)+" ").join("");
- $("status").textContent="Not enough text for reliable ML scoring.";
- $("results").scrollIntoView({behavior:"smooth",block:"start"});
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function showNeedMore(w){
+ $("results").style.display="block"; $("badge").textContent="⚠️ Not enough prose";
+ $("ai").textContent="—";$("human").textContent="—";$("words").textContent=w.toLocaleString();$("segments").textContent="—";$("bar").style.width="0";
+ $("notice").style.display="block";$("notice").textContent="For a meaningful document-level result, use at least 300 words of continuous prose. This avoids overconfident scores on short text.";
+ $("report").innerHTML=sentencesOf($("text").value).map(s=>esc(s)+" ").join("");
+ $("status").textContent="Please provide at least 300 words."; $("results").scrollIntoView({behavior:"smooth"});
 }
+function setLoad(p,msg,on=true){$("loader").style.display=on?"block":"none";$("prog").style.width=p+"%";$("loadtext").textContent=msg}
 
 $("check").onclick=async()=>{
  const text=$("text").value.trim();
  if(!text){alert("Paste text or upload a file first.");return}
- const words=(text.match(/\S+/g)||[]).length;
- const sentences=splitSentences(text);
- if(words<120 || sentences.length<3){showInsufficient(words,sentences.length);return}
+ const w=wordCount(text), ss=sentencesOf(text);
+ if(w<300){showNeedMore(w);return}
 
- $("warning").style.display="none";
- $("results").style.display="none";
- setLoading(true,0,"Loading DACTYL model. First run may download about 1–2 GB…");
-
+ $("results").style.display="none";$("notice").style.display="none";
+ setLoad(2,"Loading TMR detector. First run may download the model…");
  try{
    const detect=await getDetector();
-   const windows=makeWindows(sentences);
-   const scores=sentences.map(()=>({sum:0,n:0}));
-
-   for(let j=0;j<windows.length;j++){
-     setLoading(true,Math.round(j/windows.length*100),`Analyzing window ${j+1} of ${windows.length}…`);
-     const r=await detect(windows[j].text);
-     const arr=Array.isArray(r[0])?r[0]:r;
-     let ai=arr.find(x=>String(x.label).toLowerCase()==="ai");
-     let pAI=ai ? Number(ai.score) : 0;
-     if(!ai && arr.length===1) pAI=Number(arr[0].score);
-     if(!Number.isFinite(pAI))pAI=0;
-
-     windows[j].ids.forEach(i=>{scores[i].sum+=pAI;scores[i].n++});
+   const segs=makeSegments(ss), scores=ss.map(()=>({sum:0,weight:0}));
+   for(let j=0;j<segs.length;j++){
+     setLoad(10+Math.round(j/segs.length*85),`Analyzing contextual segment ${j+1} of ${segs.length}…`);
+     const p=Math.max(0,Math.min(1,aiProbability(await detect(segs[j].text))));
+     const segWords=wordCount(segs[j].text);
+     segs[j].ids.forEach(i=>{
+       const sw=Math.max(1,wordCount(ss[i]));
+       scores[i].sum+=p*sw;scores[i].weight+=sw;
+     });
    }
+   const sp=scores.map(x=>x.weight?x.sum/x.weight:0);
+   let total=0,totalW=0;
+   sp.forEach((p,i)=>{const ww=wordCount(ss[i]);total+=p*ww;totalW+=ww});
+   const raw=total/totalW, aiPct=Math.round(raw*100), humanPct=100-aiPct;
 
-   const vals=scores.map(x=>x.n?x.sum/x.n:0);
-   const mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+   $("ai").textContent=aiPct<20?"<20%*":aiPct+"%";
+   $("human").textContent=aiPct<20?"High uncertainty":humanPct+"%";
+   $("words").textContent=w.toLocaleString();$("segments").textContent=segs.length;
+   $("bar").style.width=Math.max(2,aiPct)+"%";
+   $("badge").textContent=aiPct<20?"🟢 Low / not surfaced":aiPct<50?"🟠 Mixed evidence":aiPct<80?"🟠 Moderate AI signal":"🔴 Strong AI signal";
 
-   // Do not invent a new percentage. Show the model-derived probability.
-   const aiPct=Math.round(Math.max(0,Math.min(100,mean*100)));
-
-   $("ai").textContent=aiPct+"%";
-   $("human").textContent=(100-aiPct)+"%";
-   $("words").textContent=words.toLocaleString();
-   $("sentences").textContent=sentences.length.toLocaleString();
-   $("bar").style.width=aiPct+"%";
-
-   $("badge").textContent=aiPct>=80?"🔴 Strong AI-like signal":aiPct>=60?"🟠 Moderate AI-like signal":"🟢 Lower AI-like signal";
-
-   $("report").innerHTML=sentences.map((s,i)=>{
-     const safe=escapeHTML(s);
-     if(vals[i]>=0.90)
-       return `<span class="sus" title="Model probability: ${Math.round(vals[i]*100)}%">${safe}</span> `;
-     if(vals[i]>=0.75)
-       return `<span class="moderate" title="Model probability: ${Math.round(vals[i]*100)}%">${safe}</span> `;
+   $("report").innerHTML=ss.map((s,i)=>{
+     const p=sp[i], q=Math.round(p*100), safe=esc(s);
+     if(p>=.80)return `<span class="sus" title="Contextual model evidence: ${q}%">${safe}</span> `;
+     if(p>=.60)return `<span class="mod" title="Contextual model evidence: ${q}%">${safe}</span> `;
      return safe+" ";
    }).join("");
 
-   if(aiPct>=60){
-     $("warning").style.display="block";
-     $("warning").textContent="This is a model-derived AI-like probability, not proof of AI authorship. Human writing can still receive a high score, especially when it resembles the model's training distribution.";
+   if(aiPct<20){
+     $("notice").style.display="block";
+     $("notice").textContent="The model's aggregate AI signal is below 20%. To reduce false-positive interpretation, the exact percentage is not treated as a meaningful detection result.";
+   }else if(aiPct>=50){
+     $("notice").style.display="block";
+     $("notice").textContent="This is a model-derived estimate of qualifying text that resembles AI-generated writing. It is not proof of authorship and should not be used alone for an academic-misconduct decision.";
    }
-
-   $("results").style.display="block";
-   setLoading(false);
-   $("status").textContent="Analysis complete.";
-   $("results").scrollIntoView({behavior:"smooth",block:"start"});
+   $("results").style.display="block";setLoad(100,"Analysis complete.");setTimeout(()=>setLoad(0,"",false),500);
+   $("status").textContent="Analysis complete."; $("results").scrollIntoView({behavior:"smooth"});
  }catch(e){
-   setLoading(false);
-   $("status").textContent="Model error: "+e.message;
-   alert("The DACTYL model could not run in this browser. If WebGPU is unavailable, this model may be too large for CPU/WASM inference.");
+   setLoad(0,"",false);$("status").textContent="Model error: "+e.message;
+   alert("The TMR model could not run in this browser. Try Chrome/Edge with WebGPU enabled, or wait for the first model download to finish.");
  }
 };
 
-$("clear").onclick=()=>{
- $("text").value=""; $("file").value="";
- updateCounter(); $("results").style.display="none"; $("status").textContent="";
-};
+$("clear").onclick=()=>{$("text").value="";$("file").value="";updateCounter();$("results").style.display="none";$("status").textContent=""};
 
 $("file").addEventListener("change",async()=>{
- const f=$("file").files[0]; if(!f)return;
+ const f=$("file").files[0];if(!f)return;
  $("status").textContent="Reading "+f.name+"…";
  try{
-   const ext=f.name.toLowerCase().split(".").pop();
-   if(ext==="txt"){
-     $("text").value=await f.text();
-   }else if(ext==="docx"){
-     const mammoth=await import("https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm");
-     const r=await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()});
-     $("text").value=r.value;
-   }else if(ext==="pdf"){
-     const pdfjs=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.min.mjs");
-     pdfjs.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.worker.min.mjs";
-     const pdf=await pdfjs.getDocument({data:await f.arrayBuffer()}).promise;
-     const pages=[];
-     for(let p=1;p<=pdf.numPages;p++){
-       const page=await pdf.getPage(p);
-       const c=await page.getTextContent();
-       pages.push(c.items.map(i=>i.str).join(" "));
-     }
-     $("text").value=pages.join("\n\n");
-   }
-   updateCounter(); $("status").textContent="File loaded successfully.";
+  const ext=f.name.toLowerCase().split(".").pop();
+  if(ext==="txt")$("text").value=await f.text();
+  else if(ext==="docx"){
+    const mammoth=await import("https://cdn.jsdelivr.net/npm/mammoth@1.8.0/+esm");
+    $("text").value=(await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value;
+  }else if(ext==="pdf"){
+    const pdfjs=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.min.mjs");
+    pdfjs.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.worker.min.mjs";
+    const pdf=await pdfjs.getDocument({data:await f.arrayBuffer()}).promise,p=[];
+    for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i),c=await page.getTextContent();p.push(c.items.map(x=>x.str).join(" "))}
+    $("text").value=p.join("\n\n");
+  }
+  updateCounter();$("status").textContent="File loaded successfully.";
  }catch(e){$("status").textContent="Could not read file: "+e.message}
 });
 updateCounter();
